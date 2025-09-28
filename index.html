@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>泌尿系統的意外訪客檔案</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 使用 Inter 字體 */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #eef2ff; /* 淺藍色背景 */
+        }
+        .card {
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15); /* 更明顯的陰影 */
+        }
+        .button-style {
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px; /* 確保觸摸目標足夠大 */
+        }
+        .button-style:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(49, 46, 129, 0.3);
+        }
+        .button-active {
+            background-color: #4338ca !important; /* 深度藍色 */
+            color: #ffffff !important;
+            box-shadow: 0 4px 15px rgba(49, 46, 129, 0.5);
+        }
+        .icon-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .emoji {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 min-h-screen flex items-center justify-center">
+
+    <div id="app" class="w-full max-w-3xl bg-white p-6 sm:p-10 rounded-2xl card border-t-[10px] border-violet-600">
+        <header class="text-center mb-10">
+            <!-- 標題圖標已從 🔬 改為 👽 -->
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">
+                👽 泌尿系統的「意外訪客」檔案
+            </h1>
+            <p class="text-violet-600 text-lg sm:text-xl font-medium">
+                專業解密：醫生的挑戰與非評判性原則
+            </p>
+        </header>
+
+        <!-- 選擇按鈕區域 -->
+        <div class="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-5">
+            <button class="case-button button-style bg-gray-100 text-gray-700 hover:bg-violet-100 rounded-xl transition p-3" data-case="household">
+                <span class="emoji">🔨</span>
+                <span class="icon-text">居家用品</span>
+            </button>
+            <button class="case-button button-style bg-gray-100 text-gray-700 hover:bg-violet-100 rounded-xl transition p-3" data-case="electrical">
+                <span class="emoji">🔋</span>
+                <span class="icon-text">電子零件</span>
+            </button>
+            <button class="case-button button-style bg-gray-100 text-gray-700 hover:bg-violet-100 rounded-xl transition p-3" data-case="organic">
+                <span class="emoji">🦠</span>
+                <span class="icon-text">有機物/生物</span>
+            </button>
+            <button class="case-button button-style bg-gray-100 text-gray-700 hover:bg-violet-100 rounded-xl transition p-3" data-case="toys">
+                <span class="emoji">🧩</span>
+                <span class="icon-text">童心玩具</span>
+            </button>
+            <button class="case-button button-style bg-gray-100 text-gray-700 hover:bg-violet-100 rounded-xl transition p-3 button-active" data-case="modifications">
+                <span class="emoji">⚠️</span>
+                <span class="icon-text">身體改造物</span>
+            </button>
+        </div>
+
+        <!-- 案例展示區 -->
+        <div id="case-display" class="bg-violet-50 p-6 sm:p-8 rounded-xl border border-violet-200">
+            <!-- 初始訊息區塊 (靠左對齊) -->
+            <div id="initial-message" class="text-left text-gray-600 hidden">
+                <p class="text-lg mb-4 font-semibold">點擊上方的類別按鈕，查看醫生遇到過最令人驚訝的病例類型。</p>
+                <p class="text-sm font-bold text-violet-700 border-l-4 border-violet-500 pl-3 py-1 bg-violet-100 rounded">
+                    【重要提醒】遇到任何泌尿系統異常，請立即就醫，不必感到羞恥或尷尬！
+                </p>
+            </div>
+
+            <!-- 動態內容將渲染於此 -->
+            <div id="case-content">
+                <h2 id="case-title" class="text-2xl font-bold text-gray-800 mb-3 border-b pb-2 border-violet-300"></h2>
+                <p id="case-description" class="text-base text-gray-600 mb-6"></p>
+                
+                <!-- 實際案例 - 警示色 -->
+                <div class="bg-red-50 p-4 rounded-lg border border-red-300 mb-5">
+                    <p class="font-bold text-red-600 mb-1 flex items-center">
+                        <span class="mr-2">🚨</span> 🏥 實際處理案例（代表物）：
+                    </p>
+                    <p id="case-object" class="text-xl font-mono text-gray-900 bg-red-100 p-3 rounded-md break-all"></p>
+                </div>
+
+                <!-- 專業點評 - 專業色 -->
+                <div class="bg-green-50 p-4 rounded-lg border border-green-300">
+                    <p class="font-bold text-green-600 mb-2 flex items-center">
+                        <span class="mr-2">✅</span> 👨‍⚕️ 專業醫生點評（風險與挑戰）：
+                    </p>
+                    <p id="case-comment" class="text-gray-700 leading-relaxed text-sm sm:text-base"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cases = {
+            'household': {
+                title: '居家用品的誤闖：長條形與硬質的挑戰',
+                description: '這類物品因質地堅硬、形狀不規則或過長而導致無法自行取出。特別注意**玻璃棒**等易碎物。',
+                object: '牙刷柄、**筆管**、**玻璃棒**或細鋼絲',
+                comment: '硬質長條物如**筆管**和牙刷柄極易造成尿道黏膜大範圍損傷。其中，**玻璃棒**的風險最高，一旦在尿道或膀胱內破裂，碎片會引發嚴重大出血和不可逆的組織損傷，需要緊急且複雜的手術清創。'
+            },
+            'electrical': {
+                title: '電光火石的驚喜：**電池、磁鐵**與電子零件',
+                description: '包括各種**電池**、**磁鐵**和電子零件。電池的化學腐蝕性和磁鐵的物理夾持效應使其極為危險。',
+                object: '**各類電池**（鈕扣或圓柱形）、**強力磁鐵**或電線片段',
+                comment: '電池無論大小，一旦洩漏就會造成組織**化學燒傷與壞死**，必須立刻取出。**強力磁鐵**的危險在於如果數量多個，它們會在膀胱內穿過組織互相吸引，導致組織缺血、壞死甚至**穿孔**。電線或導體則可能因電解反應加劇結石形成。'
+            },
+            'organic': {
+                title: '來自大自然的「禮物」：生物、植物或纖維組織',
+                description: '這類物品可能涉及活體，或因材質多孔而易碎裂，並帶來極高的感染和結石風險。',
+                object: '**棉籤頭**、**牙籤**、小型觀賞魚（活體）、植物種子或稻草',
+                comment: '處理柔軟有機物（如生物、稻草）的挑戰在於避免在移除過程中造成碎片化。**牙籤**的危險在於其**尖銳的木質末端**極易劃傷或刺穿尿道/膀胱壁，引發大出血或感染。此外，木質材料難以徹底消毒，且容易在體內碎裂或引起嚴重的發炎反應。特別是**棉籤**，棉花頭極易在潮濕環境中**脫落、膨脹**，其纖維殘留會成為細菌和尿鹽結晶的溫床，引發嚴重的尿路感染和結石。'
+            },
+            'toys': {
+                title: '童心未泯的嘗試：硬質塑膠玩具',
+                description: '小顆粒、積木零件或彈珠是常見的「訪客」。這些物品的材質通常堅硬，容易造成黏膜損傷。',
+                object: '樂高積木的小零件 (2x2顆粒)',
+                comment: '這些堅硬且帶有尖角的邊緣極易造成黏膜刮傷和出血。如果長時間停留，還會成為尿鹽結晶的附著點，形成結石的「核心」，增加移除的難度。'
+            },
+            'modifications': {
+                title: '身體改造物的複雜處理：植入物與併發症（入珠、注射物）',
+                description: '這類自願性的植入物或**注射填充物（如石蠟、凡士林）**一旦導致嚴重感染、排斥、潰爛或影響排尿功能，就需要泌尿系統外科介入移除和重建。',
+                object: '塑膠、金屬、矽膠或天然材質珠子，**以及液態石蠟/凡士林**',
+                comment: '重點在於材質風險：\n\n1. **塑膠/壓克力 (PMMA)**：表面粗糙，易引發慢性發炎、感染和排斥。手術需清創徹底。\n2. **金屬 (不鏽鋼/鈦合金)**：生物相容性較佳，但植入位置若壓迫神經或影響血流，需仔細評估移除，避免功能受損。\n3. **矽膠**：柔軟，但仍有異物反應、移位和感染風險。\n4. **玻璃/玉石**：難以滅菌，且可能導致嚴重感染。\n5. **注射填充物（石蠟/凡士林）**：這是最嚴重的自殘行為之一。非醫療級的液態物質會引發嚴重的異物肉芽腫反應，導致組織纖維化、變硬、潰爛甚至**壞死**，形成**石蠟瘤**。移除手術複雜且困難，常需進行**重建外科手術**。'
+            }
+        };
+
+        const display = document.getElementById('case-display');
+        const initialMessage = document.getElementById('initial-message');
+        const caseContent = document.getElementById('case-content');
+        const buttons = document.querySelectorAll('.case-button');
+
+        function displayCase(caseKey) {
+            const data = cases[caseKey];
+            if (!data) return;
+
+            // 隱藏初始訊息（如果它正在顯示）
+            initialMessage.classList.add('hidden');
+            caseContent.classList.remove('hidden');
+
+            // 渲染內容
+            document.getElementById('case-title').textContent = data.title;
+            document.getElementById('case-description').textContent = data.description;
+            document.getElementById('case-object').textContent = data.object;
+            
+            // 處理多行醫生點評的換行問題
+            const commentElement = document.getElementById('case-comment');
+            commentElement.innerHTML = data.comment.replace(/\n/g, '<br>');
+
+            // 更新按鈕顏色以表示選擇狀態
+            buttons.forEach(btn => {
+                btn.classList.remove('button-active');
+                btn.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-violet-100');
+                if (btn.getAttribute('data-case') === caseKey) {
+                    btn.classList.add('button-active');
+                    btn.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-violet-100');
+                }
+            });
+
+            // 滾動到顯示區 (增強手機體驗)
+            display.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 為所有按鈕添加事件監聽器
+        buttons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                // 使用 closest 確保點擊到按鈕內任何地方都能獲取 data-case
+                const caseKey = e.target.closest('.case-button').getAttribute('data-case');
+                displayCase(caseKey);
+            });
+        });
+
+        // 預設顯示 'modifications' 案例
+        window.onload = () => {
+             displayCase('modifications');
+        }
+    </script>
+</body>
+</html>
+
